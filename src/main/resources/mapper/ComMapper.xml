@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.domain.ComMapper">
+    <!-- 动态修改(有可能只修改某几个字段) -->
+    <!-- 修改企业信息 -->
+    <update id="updateComAll" parameterType="com.example.demo.domain.pojo.Com">
+        update com
+        <set>
+            <if test="fullname!=null and fullname!=''">
+                fullname=#{fullname},
+            </if>
+            <if test="password!=null and password!=''">
+                password=#{password},
+            </if>
+            <if test="address!=null and address!=''">
+                address=#{address},
+            </if>
+            <if test="comcount!=null and comcount!=''">
+                comcount=#{comcount},
+            </if>
+            <if test="email!=null and email!=''">
+                email=#{email},
+            </if>
+            <if test="tel!=null and tel!=''">
+                tel=#{tel},
+            </if>
+            <if test="description!=null and description!=''">
+                description=#{description},
+            </if>
+            <if test="role!=null and role!=''">
+                role=#{role},
+            </if>
+        </set>
+        where com_id=#{com_id}
+    </update>
+
+
+    <!-- 通用查询 -->
+    <select id="findAll" resultType="java.util.Map">
+        select c.*,j.job_name
+        from job as j,com_recruitment as c
+        <where>
+            c.job_id=j.job_id
+            <if test="comRecruitment.com_id!=null and comRecruitment.com_id!=''">
+                and c.com_id=#{comRecruitment.com_id}
+            </if>
+            <if
+                    test="comRecruitment.experience!=null and comRecruitment.experience!=''">
+                and c.experience=#{comRecruitment.experience}
+            </if>
+            <if test="comRecruitment.degree!=null and comRecruitment.degree!=''">
+                and c.degree=#{comRecruitment.degree}
+            </if>
+            <if test="comRecruitment.examine!=null and comRecruitment.examine!=''">
+                and c.examine=#{comRecruitment.examine}
+            </if>
+        </where>
+        limit #{0},#{1}
+    </select>
+    <!-- 通用查询 -->
+    <select id="findCheck" resultType="java.util.Map">
+        select u.*,j.*,uc.*,uj.place,uj.userjob_id
+        from user_job uj,user u,job
+        j,user_com uc,com_recruitment cr
+        <where>
+            uj.user_id=u.user_id and cr.job_id=j.job_id and uc.user_id=u.user_id
+            and cr.recruitment_id=uc.recruitment_id
+            <if test="models.com_id!=null and models.com_id!=''">
+                and uj.com_id=#{models.com_id}
+            </if>
+            <if test="models.degree!=null and models.degree!=''">
+                and u.degree=#{models.degree}
+            </if>
+            <if test="models.status!=null and models.status!=''">
+                and uc.status=#{models.status}
+            </if>
+            <if test="models.job_name!=null and models.job_name!=''">
+
+                and j.job_name like '%${models.job_name}%'
+            </if>
+            <if test="models.date1!=null and models.date1!=''">
+                <![CDATA[  and u.graduation >= #{models.date1}  ]]>
+            </if>
+            <if test="models.date2!=null and models.date2!=''">
+                <![CDATA[  and u.graduation <= #{models.date2}   ]]>
+            </if>
+        </where>
+        limit #{0},#{1}
+    </select>
+
+    <select id="findChecks" parameterType="int" resultType="java.util.Map">
+		select
+		u.realname,u.sex,u.email,u.tel,u.birthday,u.school,u.graduation,u.degree,u.largnage,u.city,u.major,uj.place,uj.description,uj.project,j.job_name
+		from user_job uj,user u,job j,user_com
+		uc,com_recruitment cr
+		where
+		uj.user_id=u.user_id and cr.job_id=j.job_id and
+		uc.user_id=u.user_id
+		and cr.recruitment_id=uc.recruitment_id
+		and uc.id=#{0}
+	</select>
+    <!-- 查询发布的招聘信息 -->
+    <select id="count" parameterType="com.example.demo.domain.pojo.ComRecruitment"
+            resultType="int">
+        select count(*) from com_recruitment
+        <where>
+            <if test="com_id!=null and com_id!=''">
+                com_id=#{com_id}
+            </if>
+            <if test="experience!=null and experience!=''">
+                and experience=#{experience}
+            </if>
+            <if test="degree!=null and degree!=''">
+                and degree=#{degree}
+            </if>
+            <if test="examine!=null and examine!=''">
+                and examine=#{examine}
+            </if>
+        </where>
+    </select>
+    <!-- 查询求职信息 -->
+
+    <select id="countCheck" parameterType="java.util.Map"
+            resultType="int">
+        select count(*) from user_job uj,user u,job j,user_com
+        uc,com_recruitment cr
+        <where>
+            uj.user_id=u.user_id and cr.job_id=j.job_id and uc.user_id=u.user_id
+            and cr.recruitment_id=uc.recruitment_id
+            <if test="models.com_id!=null and models.com_id!=''">
+                and uj.com_id=#{models.com_id}
+            </if>
+            <if test="models.degree!=null and models.degree!=''">
+                and u.degree=#{models.degree}
+            </if>
+            <if test="models.status!=null and models.status!=''">
+                and uc.status=#{models.status}
+            </if>
+            <if test="models.job_name!=null and models.job_name!=''">
+                and j.job_name=#{models.job_name}
+            </if>
+            <if test="models.date1!=null and models.date1!=''">
+                and u.graduation &gt;= #{models.date1}
+            </if>
+            <if test="models.date2!=null and models.date2!=''">
+                and u.graduation &lt;= #{models.date2}
+            </if>
+        </where>
+    </select>
+
+    <delete id="delRecruitmentIds">
+        <!--collection:要循环谁 List/array item：循环到的对象的别名 index：索引 open:拼装完的语句前面加上什么
+            close:拼装完的语句后面加上什么 separator：循环变量用什么进行分割 -->
+        delete from com_recruitment where recruitment_id in
+        <foreach collection="array" item="item" open="(" close=")"
+                 separator=",">
+            #{item}
+        </foreach>
+
+    </delete>
+
+
+</mapper>

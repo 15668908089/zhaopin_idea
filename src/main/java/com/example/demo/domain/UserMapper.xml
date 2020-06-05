@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.domain.UserMapper">
+
+    <select id="userFindJob" resultType="java.util.Map">
+        select
+        cr.*,j.job_name,j.job_id,c.com_id,c.fullname,c.comcount,c.email,c.tel,c.description
+        as comMiaoShu
+        from job as j,com_recruitment as cr,com c
+        <where>
+            cr.job_id=j.job_id and cr.com_id=c.com_id
+            <if test="address!=null and address!=''and address!='全国'">
+                and cr.address=#{address}
+            </if>
+        </where>
+        limit 0,12
+    </select>
+
+    <select id="countUser" resultType="int">
+        select count(*)
+        from job as j,com_recruitment as cr,com c
+        <where>
+            cr.job_id=j.job_id and cr.com_id=c.com_id
+            <if test="userMap.job!=null and userMap.job!=''">
+                and ( j.job_name like '%${userMap.job}%' or c.fullname like
+                '%${userMap.job}%' )
+            </if>
+            <if test="userMap.experience!=null and userMap.experience!=''">
+                and experience =#{userMap.experience}
+            </if>
+            <if test="userMap.address!=null and userMap.address!=''">
+                and address like '%${userMap.address}%'
+            </if>
+            <if test="userMap.comcount!=null and userMap.comcount!=''">
+                and comcount=#{userMap.comcount}
+            </if>
+            and cr.examine='通过'
+        </where>
+    </select>
+
+
+    <select id="userFindErJi" resultType="java.util.Map">
+        select
+        cr.*,j.job_name,j.job_id,c.com_id,c.fullname,c.comcount,c.email,c.tel,c.description
+        as comMiaoShu
+        from job as j,com_recruitment as cr,com c
+        <where>
+            cr.job_id=j.job_id and cr.com_id=c.com_id
+            <if test="userMap.job!=null and userMap.job!=''">
+                and ( j.job_name like '%${userMap.job}%' or c.fullname like
+                '%${userMap.job}%' )
+            </if>
+            <if test="userMap.experience!=null and userMap.experience!=''">
+                and experience =#{userMap.experience}
+            </if>
+            <if test="userMap.address!=null and userMap.address!=''">
+                and address like '%${userMap.address}%'
+            </if>
+            <if test="userMap.comcount!=null and userMap.comcount!=''">
+                and comcount=#{userMap.comcount}
+            </if>
+            and cr.examine='通过'
+        </where>
+        limit #{currentPage},#{pageSize}
+    </select>
+</mapper>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.domain.AdminMapper">
+    <!-- 动态修改(有可能只修改某几个字段) -->
+    <!-- 查询所有的用户信息 并对其进行分页 -->
+    <select id="countUser" resultType="int">
+        select count(*)
+        from user
+        <where>
+            <if test="userMap.realname!=null and userMap.realname!=''">
+                realname like '%${userMap.realname}%'
+            </if>
+            <if test="userMap.sex!=null and userMap.sex!=''">
+                and sex=#{userMap.sex}
+            </if>
+            <if test="userMap.date1!=null and userMap.date1!=''">
+                <![CDATA[  and birthday >= #{userMap.date1}  ]]>
+            </if>
+            <if test="userMap.date2!=null and userMap.date2!=''">
+                <![CDATA[  and birthday <= #{userMap.date2}   ]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="countCom" resultType="int">
+        select count(*)
+        from com
+        <where>
+            <if test="comMap.fullname!=null and comMap.fullname!=''">
+                fullname like '%${comMap.fullname}%'
+            </if>
+
+            <if test="comMap.address!=null and comMap.address!=''">
+                and address like '%${comMap.address}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllUser" resultType="java.util.Map">
+        select *
+        from user
+        <where>
+            <if test="userMap.realname!=null and userMap.realname!=''">
+                realname like '%${userMap.realname}%'
+            </if>
+            <if test="userMap.sex!=null and userMap.sex!=''">
+                and sex=#{userMap.sex}
+            </if>
+            <if test="userMap.date1!=null and userMap.date1!=''">
+                <![CDATA[  and birthday >= #{userMap.date1}  ]]>
+            </if>
+            <if test="userMap.date2!=null and userMap.date2!=''">
+                <![CDATA[  and birthday <= #{userMap.date2}   ]]>
+            </if>
+        </where>
+        limit #{0},#{1}
+    </select>
+
+    <select id="findAllCom" resultType="java.util.Map">
+        select *
+        from com
+        <where>
+            <if test="comMap.fullname!=null and comMap.fullname!=''">
+                fullname like '%${comMap.fullname}%'
+            </if>
+
+            <if test="comMap.address!=null and comMap.address!=''">
+                and address like '%${comMap.address}%'
+            </if>
+        </where>
+        limit #{0},#{1}
+    </select>
+
+    <!-- 根据用户信息表的user_id的数组 删除多条用户信息 -->
+    <delete id="delComByIds">
+        <!-- collection:要循环谁 List/array item：循环到的对象的别名 index：索引 open:拼装完的语句前面加上什么
+            close:拼装完的语句后面加上什么 separator：循环变量用什么进行分割 -->
+        delete from com where com_id in
+        <foreach collection="array" item="item" open="(" close=")"
+                 separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findComRecuitment" resultType="java.util.Map">
+        select * from com c,com_recruitment cr,job j
+        <where>
+            c.com_id=cr.com_id and cr.job_id=j.job_id and cr.examine='未审核'
+            <if test="comRecruitment.fullname!=null and comRecruitment.fullname!=''">
+                and c.fullname like '%${comRecruitment.fullname}%'
+            </if>
+
+            <if test="comRecruitment.address!=null and comRecruitment.address!=''">
+                and c.address like '%${comRecruitment.address}%'
+            </if>
+        </where>
+        limit #{0},#{1}
+    </select>
+
+    <select id="count" resultType="int">
+        select count(*) from com c,com_recruitment cr,job j
+        <where>
+            c.com_id=cr.com_id and cr.job_id=j.job_id and cr.examine='未审核'
+            <if test="comRecruitment.fullname!=null and comRecruitment.fullname!=''">
+                and c.fullname like '%${comRecruitment.fullname}%'
+            </if>
+
+            <if test="comRecruitment.address!=null and comRecruitment.address!=''">
+                and c.address like '%${comRecruitment.address}%'
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findAllNews" resultType="java.util.Map">
+        select * from admin_news
+        <where>
+            <if test="adminNews.news_name!=null and adminNews.news_name!=''">
+                news_name like '%${adminNews.news_name}%'
+            </if>
+
+            <if test="adminNews.news_day!=null and adminNews.news_day!=''">
+                <!-- and news_day = #{adminNews.news_day} -->
+                and news_day = #{adminNews.news_day}
+            </if>
+        </where>
+        order by news_day desc limit #{0},#{1}
+    </select>
+
+    <select id="countNews" resultType="int">
+        select count(*) from admin_news
+        <where>
+            <if test="adminNews.news_name!=null and adminNews.news_name!=''">
+                news_name like '%${adminNews.news_name}%'
+            </if>
+
+            <if test="adminNews.news_day!=null and adminNews.news_day!=''">
+                and news_day = #{adminNews.news_day}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="findAllAnnounce" resultType="java.util.Map">
+        select * from admin_announce
+        <where>
+            <if test="adminAnnounce.announce_name!=null and adminAnnounce.announce_name!=''">
+                announce_name like '%${adminAnnounce.announce_name}%'
+            </if>
+
+            <if test="adminAnnounce.announce_day!=null and adminAnnounce.announce_day!=''">
+                and announce_day = #{adminAnnounce.announce_day}
+            </if>
+        </where>
+        order by announce_day desc  limit #{0},#{1}
+    </select>
+
+    <select id="countAnnounce" resultType="int">
+        select count(*) from admin_announce
+        <where>
+            <if test="adminAnnounce.announce_name!=null and adminAnnounce.announce_name!=''">
+                announce_name like '%${adminAnnounce.announce_name}%'
+            </if>
+
+            <if test="adminAnnounce.announce_day!=null and adminAnnounce.announce_day!=''">
+                and announce_day = #{adminAnnounce.announce_day}
+            </if>
+        </where>
+
+    </select>
+
+
+
+    <!-- 根据企业信息表的com_id的数组 删除多条用户信息 -->
+    <delete id="delUserByIds">
+        <!-- collection:要循环谁 List/array item：循环到的对象的别名 index：索引 open:拼装完的语句前面加上什么
+            close:拼装完的语句后面加上什么 separator：循环变量用什么进行分割 -->
+        delete from user where user_id in
+        <foreach collection="array" item="item" open="(" close=")"
+                 separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+
+
+    <delete id="delUserJobByIds">
+        <!-- collection:要循环谁 List/array item：循环到的对象的别名 index：索引 open:拼装完的语句前面加上什么
+            close:拼装完的语句后面加上什么 separator：循环变量用什么进行分割 -->
+        delete from user_job where user_id in
+        <foreach collection="array" item="item" open="(" close=")"
+                 separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+    <delete id="delsNews">
+        <!-- collection:要循环谁 List/array item：循环到的对象的别名 index：索引 open:拼装完的语句前面加上什么
+            close:拼装完的语句后面加上什么 separator：循环变量用什么进行分割 -->
+        delete from admin_news where news_id in
+        <foreach collection="array" item="item" open="(" close=")"
+                 separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <delete id="delsAnnounce">
+        <!-- collection:要循环谁 List/array item：循环到的对象的别名 index：索引 open:拼装完的语句前面加上什么
+            close:拼装完的语句后面加上什么 separator：循环变量用什么进行分割 -->
+        delete from admin_announce where announce_id in
+        <foreach collection="array" item="item" open="(" close=")"
+                 separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>
